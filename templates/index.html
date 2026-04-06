@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>معادلة - كلية الهندسة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: #f0f4ff; }
+
+        .navbar {
+            background: linear-gradient(135deg, #1a237e, #3949ab);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: 0.3s;
+        }
+        .navbar.scrolled { padding: 10px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .navbar .logo { color: white; font-size: 28px; font-weight: bold; text-decoration: none; }
+        .navbar .logo span { color: #ffd700; }
+        .nav-links a { color: white; text-decoration: none; margin-right: 20px; font-size: 16px; padding: 8px 20px; border-radius: 25px; transition: 0.3s; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .nav-links .btn-login { background: #ffd700; color: #1a237e; font-weight: bold; }
+        .nav-links .btn-login:hover { background: #ffcc00; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 50%, #1565c0 100%);
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .particle { position: absolute; width: 8px; height: 8px; background: rgba(255,255,255,0.15); border-radius: 50%; animation: floatParticle linear infinite; }
+        .hero .icon-float { font-size: 80px; display: block; animation: float 3s ease-in-out infinite; margin-bottom: 20px; }
+        .hero h1 { font-size: 56px; margin-bottom: 20px; animation: fadeInUp 1s ease forwards; }
+        .hero h1 span { color: #ffd700; }
+        .hero p { font-size: 22px; margin-bottom: 40px; opacity: 0; animation: fadeInUp 1s ease 0.3s forwards; }
+        .hero-btns { opacity: 0; animation: fadeInUp 1s ease 0.6s forwards; }
+        .hero-btns a { display: inline-block; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 18px; font-weight: bold; margin: 10px; transition: 0.3s; }
+        .btn-primary { background: #ffd700; color: #1a237e; animation: pulse 2s infinite; }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(255,215,0,0.4); }
+        .btn-secondary { background: transparent; color: white; border: 2px solid white; }
+        .btn-secondary:hover { background: white; color: #1a237e; }
+
+        .stats { display: flex; justify-content: center; gap: 40px; padding: 60px 20px; background: white; flex-wrap: wrap; }
+        .stat-card { text-align: center; padding: 30px 50px; border-radius: 15px; background: #f0f4ff; box-shadow: 0 4px 15px rgba(0,0,0,0.08); opacity: 0; animation: fadeInUp 0.8s ease forwards; }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.3s; }
+        .stat-card:nth-child(3) { animation-delay: 0.5s; }
+        .stat-card:nth-child(4) { animation-delay: 0.7s; }
+        .stat-card h2 { font-size: 48px; color: #1a237e; }
+        .stat-card p { color: #666; font-size: 16px; margin-top: 5px; }
+
+        .features { padding: 60px 40px; text-align: center; }
+        .features h2 { font-size: 36px; color: #1a237e; margin-bottom: 40px; }
+        .features-grid { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; }
+        .feature-card { background: white; padding: 35px 30px; border-radius: 20px; width: 250px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s; }
+        .feature-card.visible { opacity: 1; transform: translateY(0); }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .feature-card .icon { font-size: 50px; margin-bottom: 15px; }
+        .feature-card h3 { color: #1a237e; font-size: 20px; margin-bottom: 10px; }
+        .feature-card p { color: #666; font-size: 14px; line-height: 1.6; }
+
+        .footer { background: #1a237e; color: white; text-align: center; padding: 30px; margin-top: 60px; }
+        .footer p { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="/" class="logo">🎓 <span>معادلة</span></a>
+        <div class="nav-links">
+            <a href="/register">إنشاء حساب</a>
+            <a href="/login" class="btn-login">تسجيل الدخول</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <div class="particles"></div>
+        <span class="icon-float">🎓</span>
+        <h1>منصة <span>معادلة</span></h1>
+        <p>منصتك التعليمية الأولى لطلاب كلية الهندسة</p>
+        <div class="hero-btns">
+            <a href="/register" class="btn-primary">ابدأ دلوقتي مجاناً</a>
+            <a href="/login" class="btn-secondary">تسجيل الدخول</a>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card"><h2>500</h2><p>👨‍🎓 طالب مسجل</p></div>
+        <div class="stat-card"><h2>50</h2><p>📚 كورس متاح</p></div>
+        <div class="stat-card"><h2>200</h2><p>🎥 محاضرة مسجلة</p></div>
+        <div class="stat-card"><h2>100</h2><p>📝 امتحان تدريبي</p></div>
+    </div>
+
+    <div class="features">
+        <h2>إيه اللي هتلاقيه في معادلة؟ 🚀</h2>
+        <div class="features-grid">
+            <div class="feature-card"><div class="icon">🎥</div><h3>محاضرات مسجلة</h3><p>شوف المحاضرات في أي وقت وأي مكان على راحتك</p></div>
+            <div class="feature-card"><div class="icon">📝</div><h3>امتحانات تدريبية</h3><p>اتدرب على الامتحانات وعرف مستواك فوراً</p></div>
+            <div class="feature-card"><div class="icon">📚</div><h3>كورسات متنوعة</h3><p>كورسات لكل مواد كلية الهندسة في مكان واحد</p></div>
+            <div class="feature-card"><div class="icon">🏆</div><h3>تتبع تقدمك</h3><p>شوف نتايجك وتقدمك في كل مادة بسهولة</p></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>🎓 منصة معادلة - كلية الهندسة © 2026</p>
+    </div>
+
+    <script>
+        // Particles
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            p.style.left = Math.random() * 100 + '%';
+            p.style.width = p.style.height = Math.random() * 10 + 5 + 'px';
+            p.style.animationDuration = Math.random() * 10 + 8 + 's';
+            p.style.animationDelay = Math.random() * 5 + 's';
+            document.querySelector('.particles').appendChild(p);
+        }
+
+        // Navbar scroll
+        window.addEventListener('scroll', () => {
+            document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Feature cards animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), i * 150);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.feature-card').forEach(card => observer.observe(card));
+
+        // Counter animation
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const h2 = entry.target.querySelector('h2');
+                    const target = parseInt(h2.innerText);
+                    let count = 0;
+                    const timer = setInterval(() => {
+                        count += target / 50;
+                        if (count >= target) { h2.innerText = target + '+'; clearInterval(timer); }
+                        else { h2.innerText = Math.floor(count) + '+'; }
+                    }, 30);
+                }
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.stat-card').forEach(card => statObserver.observe(card));
+    </script>
+
+</body>
+</html>

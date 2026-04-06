@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ lecture.title }} - معادلة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #0a0a0a; color: white; min-height: 100vh; }
+        .navbar { background: rgba(26,35,126,0.95); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar .logo { color: white; font-size: 22px; font-weight: bold; text-decoration: none; }
+        .navbar .logo span { color: #ffd700; }
+        .video-container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .video-wrapper { background: #000; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        video { width: 100%; display: block; max-height: 500px; }
+        .lecture-info { background: #1a1a2e; border-radius: 15px; padding: 25px; margin-top: 20px; }
+        .lecture-info h1 { font-size: 24px; color: #ffd700; margin-bottom: 10px; }
+        .lecture-info p { color: #aaa; line-height: 1.6; }
+        .back-btn { display: inline-block; margin-top: 20px; color: #7986cb; text-decoration: none; }
+        .back-btn:hover { color: #ffd700; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/" class="logo">🎓 <span>معادلة</span></a>
+        <a href="/courses" style="color:white; text-decoration:none;">📚 الكورسات</a>
+    </div>
+
+    <div class="video-container">
+        <div class="video-wrapper">
+            <video controls autoplay>
+                <source src="/static/uploads/{{ lecture.filename }}" type="video/mp4">
+                المتصفح مش بيدعم الفيديو
+            </video>
+        </div>
+        <div class="lecture-info">
+            <h1>{{ lecture.title }}</h1>
+            <p>{{ lecture.description }}</p>
+            <a href="/course/{{ lecture.course_id }}" class="back-btn">← رجوع للكورس</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>الكورسات - معادلة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #f0f4ff; }
+        .navbar { background: linear-gradient(135deg, #1a237e, #3949ab); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar .logo { color: white; font-size: 24px; font-weight: bold; text-decoration: none; }
+        .navbar .logo span { color: #ffd700; }
+        .nav-links a { color: white; text-decoration: none; margin-right: 15px; padding: 8px 20px; border-radius: 25px; transition: 0.3s; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .nav-links .btn-logout { background: #e53935; }
+        .header { text-align: center; padding: 50px 20px 30px; }
+        .header h1 { color: #1a237e; font-size: 36px; }
+        .header p { color: #666; margin-top: 10px; }
+        .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 20px 40px 60px; max-width: 1200px; margin: 0 auto; }
+        .course-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: 0.3s; text-decoration: none; color: inherit; display: block; }
+        .course-card:hover { transform: translateY(-8px); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .course-card .icon { font-size: 50px; margin-bottom: 15px; }
+        .course-card h3 { color: #1a237e; font-size: 20px; margin-bottom: 10px; }
+        .course-card p { color: #666; font-size: 14px; line-height: 1.6; }
+        .course-card .subject { display: inline-block; background: #e3f2fd; color: #1565c0; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 15px; }
+        .course-card .lectures-count { color: #999; font-size: 13px; margin-top: 10px; }
+        .empty { text-align: center; padding: 80px; color: #999; }
+        .empty p { font-size: 20px; margin-top: 15px; }
+        {% if session.get('role') == 'admin' %}
+        .add-btn { display: block; text-align: center; margin: 20px auto; background: linear-gradient(135deg, #1a237e, #3949ab); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 16px; width: fit-content; transition: 0.3s; }
+        .add-btn:hover { transform: scale(1.05); }
+        {% endif %}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/" class="logo">🎓 <span>معادلة</span></a>
+        <div class="nav-links">
+            {% if session.get('user_id') %}
+                <span style="color:white;">👋 {{ session.get('name') }}</span>
+                {% if session.get('role') == 'admin' %}
+                    <a href="/admin">⚙️ لوحة التحكم</a>
+                {% endif %}
+                <a href="/logout" class="btn-logout">خروج</a>
+            {% else %}
+                <a href="/login">تسجيل الدخول</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>📚 الكورسات</h1>
+        <p>اختار الكورس اللي يناسبك وابدأ رحلة التعلم</p>
+    </div>
+
+    {% if session.get('role') == 'admin' %}
+        <a href="/admin/add_course" class="add-btn">➕ إضافة كورس جديد</a>
+        <a href="/admin/add_lecture" class="add-btn" style="background: linear-gradient(135deg, #2e7d32, #388e3c); margin-top: 10px;">🎥 رفع محاضرة</a>
+    {% endif %}
+
+    <div class="courses-grid">
+        {% if courses %}
+            {% for course in courses %}
+                <a href="/course/{{ course.id }}" class="course-card">
+                    <div class="icon">{{ course.image }}</div>
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.description }}</p>
+                    <span class="subject">{{ course.subject }}</span>
+                    <p class="lectures-count">🎥 {{ course.lectures|length }} محاضرة</p>
+                </a>
+            {% endfor %}
+        {% else %}
+            <div class="empty" style="grid-column: 1/-1;">
+                <span style="font-size:60px;">📭</span>
+                <p>لا يوجد كورسات حتى الآن</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

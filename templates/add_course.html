@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إضافة كورس - معادلة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #f0f4ff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); width: 500px; }
+        h2 { color: #1a237e; text-align: center; margin-bottom: 25px; }
+        input, select, textarea { width: 100%; padding: 13px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; outline: none; transition: 0.3s; }
+        input:focus, textarea:focus { border-color: #1a237e; }
+        textarea { height: 120px; resize: none; }
+        .emoji-picker { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+        .emoji-btn { font-size: 30px; cursor: pointer; padding: 8px; border-radius: 10px; border: 2px solid transparent; transition: 0.2s; }
+        .emoji-btn:hover, .emoji-btn.selected { border-color: #1a237e; background: #e3f2fd; }
+        button { width: 100%; padding: 14px; background: linear-gradient(135deg, #1a237e, #3949ab); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+        button:hover { transform: scale(1.02); }
+        a { display: block; text-align: center; margin-top: 15px; color: #1a237e; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>📚 إضافة كورس جديد</h2>
+        <form method="POST">
+            <input type="text" name="title" placeholder="اسم الكورس" required>
+            <textarea name="description" placeholder="وصف الكورس"></textarea>
+            <input type="text" name="subject" placeholder="المادة (مثال: رياضيات، فيزياء)" required>
+            <p style="color:#666; margin-top:10px;">اختار أيقونة الكورس:</p>
+            <div class="emoji-picker">
+                {% for emoji in ['📚', '🔬', '⚗️', '🔭', '📐', '🧮', '💻', '⚙️', '🏗️', '🔌', '🧲', '📊'] %}
+                    <span class="emoji-btn" onclick="selectEmoji('{{ emoji }}')">{{ emoji }}</span>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="image" id="imageInput" value="📚">
+            <button type="submit">➕ إضافة الكورس</button>
+        </form>
+        <a href="/courses">← رجوع للكورسات</a>
+    </div>
+    <script>
+        function selectEmoji(emoji) {
+            document.getElementById('imageInput').value = emoji;
+            document.querySelectorAll('.emoji-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+    </script>
+</body>
+</html>
