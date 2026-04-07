@@ -2,25 +2,17 @@ from flask import Flask, render_template, redirect, url_for, request, session, j
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from werkzeug.exceptions import RequestEntityTooLarge
 import os
-from datetime import datetime, timedelta, date
 
 app = Flask(__name__)
 app.secret_key = 'moadalah_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///moadalah.db'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 db = SQLAlchemy(app)
 
-# إنشاء فولدر الرفع
 os.makedirs('static/uploads', exist_ok=True)
 
-ALLOWED_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv'}
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-# ====== Models ======
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -46,28 +38,9 @@ class Lecture(db.Model):
     course = db.relationship('Course', backref='lectures')
     active = db.Column(db.Boolean, default=True)
 
-class Subscription(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    expiry_date = db.Column(db.Date)
-    user = db.relationship('User', backref='subscription')
-
 with app.app_context():
     db.create_all()
 
-# ====== Helper Function ======
-def user_has_active_subscription(user_id):
-    sub = Subscription.query.filter_by(user_id=user_id).first()
-    if not sub:
-        return False
-    return sub.expiry_date >= date.today()
-
-# ====== Error Handler ======
-@app.errorhandler(RequestEntityTooLarge)
-def handle_big_file(e):
-    return "حجم الملف كبير جدًا!", 413
-
-# ====== Routes ======
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -85,7 +58,10 @@ def register():
         email = request.form['email']
         password = generate_password_hash(request.form['password'])
         admin_code = request.form.get('admin_code', '')
-        role = 'admin' if admin_code == 'MOADALAH2026' else 'student'
+        if admin_code == 'MOADALAH2026':
+            role = 'admin'
+        else:
+            role = 'student'
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return render_template('register.html', error='الإيميل ده مسجل قبل كده!')
@@ -107,7 +83,10 @@ def login():
             session['user_id'] = user.id
             session['name'] = user.name
             session['role'] = user.role
-            return redirect(url_for('admin' if user.role == 'admin' else 'home'))
+            if user.role == 'admin':
+                return redirect(url_for('admin'))
+            else:
+                return redirect(url_for('home'))
         return render_template('login.html', error='الإيميل أو كلمة السر غلط!')
     return render_template('login.html')
 
@@ -150,18 +129,30 @@ def add_lecture():
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
-        course_id = int(request.form['course_id'])
+        course_id = request.form['course_id']
         file = request.files['video']
-        if file and allowed_file(file.filename):
+        if file:
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             lecture = Lecture(title=title, description=description, filename=filename, course_id=course_id)
             db.session.add(lecture)
             db.session.commit()
             return redirect(url_for('courses'))
-        else:
-            return render_template('add_lecture.html', courses=all_courses, error='صيغة الملف غير مسموح بها!')
     return render_template('add_lecture.html', courses=all_courses)
+
+@app.route('/watch/<int:id>')
+def watch(id):
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
+    lecture = Lecture.query.get_or_404(id)
+    return render_template('watch.html', lecture=lecture)
+
+@app.route('/profile')
+def profile():
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
+    user = User.query.get(session['user_id'])
+    return render_template('profile.html', user=user)
 
 @app.route('/api/students')
 def api_students():
@@ -188,46 +179,5 @@ def toggle_user(id):
     db.session.commit()
     return jsonify({'success': True})
 
-# ====== Watch Lecture with Subscription Check ======
-@app.route('/watch/<int:id>')
-def watch(id):
-    if not session.get('user_id'):
-        return redirect(url_for('login'))
-
-    lecture = Lecture.query.get_or_404(id)
-    user_id = session['user_id']
-    is_subscribed = user_has_active_subscription(user_id)
-
-    # السماح بالقديم فقط إذا الاشتراك انتهى
-    if not is_subscribed and lecture.id > 5:  # الدروس بعد id 5 تعتبر جديدة
-        return render_template('subscription_needed.html')
-
-    return render_template('watch.html', lecture=lecture, subscribed=is_subscribed)
-
-# ====== Renew Routes ======
-@app.route('/renew')
-def renew():
-    if not session.get('user_id'):
-        return redirect(url_for('login'))
-    return render_template('renew.html')
-
-@app.route('/admin/add_subscription/<int:user_id>', methods=['POST'])
-def add_subscription(user_id):
-    if session.get('role') != 'admin':
-        return "Unauthorized"
-
-    days = int(request.form['days'])
-    sub = Subscription.query.filter_by(user_id=user_id).first()
-
-    if sub:
-        sub.expiry_date = max(sub.expiry_date, date.today()) + timedelta(days=days)
-    else:
-        sub = Subscription(user_id=user_id, expiry_date=date.today() + timedelta(days=days))
-
-    db.session.add(sub)
-    db.session.commit()
-    return "Subscription added!"
-
-# ====== Run Server ======
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
