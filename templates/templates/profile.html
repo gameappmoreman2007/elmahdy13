@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ملفي الشخصي - معادلة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #f0f4ff; }
+        .navbar { background: linear-gradient(135deg, #1a237e, #3949ab); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .navbar .logo { color: white; font-size: 24px; font-weight: bold; text-decoration: none; }
+        .navbar .logo span { color: #ffd700; }
+        .nav-links a { color: white; text-decoration: none; margin-right: 15px; padding: 8px 20px; border-radius: 25px; transition: 0.3s; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+
+        .profile-header {
+            background: linear-gradient(135deg, #1a237e, #3949ab);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+        }
+        .avatar {
+            width: 100px; height: 100px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 15px;
+            border: 4px solid white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .profile-header h1 { font-size: 28px; margin-bottom: 5px; }
+        .profile-header p { opacity: 0.8; font-size: 16px; }
+        .badge-role {
+            display: inline-block;
+            background: #ffd700;
+            color: #1a237e;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .content { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: 0.3s;
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-card .icon { font-size: 35px; margin-bottom: 8px; }
+        .stat-card h3 { font-size: 28px; color: #1a237e; }
+        .stat-card p { color: #666; font-size: 13px; margin-top: 3px; }
+
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .info-card h2 { color: #1a237e; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .info-row:last-child { border-bottom: none; }
+        .info-row .label { color: #666; font-size: 14px; }
+        .info-row .value { color: #1a237e; font-weight: bold; font-size: 15px; }
+
+        .level-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .level-card h2 { color: #1a237e; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
+        .level-info { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; }
+        .level-badge { font-size: 50px; }
+        .level-text h3 { color: #1a237e; font-size: 22px; }
+        .level-text p { color: #666; font-size: 14px; }
+        .xp-bar { background: #e0e0e0; border-radius: 10px; height: 12px; overflow: hidden; margin-bottom: 8px; }
+        .xp-fill { height: 100%; background: linear-gradient(90deg, #1a237e, #ffd700); border-radius: 10px; transition: width 1.5s ease; }
+        .xp-text { color: #666; font-size: 13px; text-align: left; }
+
+        .activity-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .activity-card h2 { color: #1a237e; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
+        .activity-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon { width: 40px; height: 40px; border-radius: 50%; background: #e3f2fd; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .activity-text p { font-size: 14px; color: #333; }
+        .activity-text span { font-size: 12px; color: #999; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="/" class="logo">🎓 <span>معادلة</span></a>
+        <div class="nav-links">
+            <a href="/courses">📚 الكورسات</a>
+            <a href="/profile" style="background:rgba(255,255,255,0.2);">👤 ملفي</a>
+            <a href="/logout" style="background:#e53935;">خروج</a>
+        </div>
+    </div>
+
+    <div class="profile-header">
+        <div class="avatar">{{ user.name[0] }}</div>
+        <h1>{{ user.name }}</h1>
+        <p>{{ user.email }}</p>
+        <span class="badge-role">
+            {% if user.role == 'admin' %}⚙️ أدمين
+            {% elif user.role == 'teacher' %}👨‍🏫 مدرس
+            {% else %}🎓 طالب{% endif %}
+        </span>
+    </div>
+
+    <div class="content">
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon">🎥</div>
+                <h3>0</h3>
+                <p>محاضرة شوفتها</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">📝</div>
+                <h3>0</h3>
+                <p>امتحان حليته</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">⭐</div>
+                <h3>0</h3>
+                <p>نقطة XP</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">🏆</div>
+                <h3>0</h3>
+                <p>كورس أكملته</p>
+            </div>
+        </div>
+
+        <!-- Level -->
+        <div class="level-card">
+            <h2>🏅 مستواك في المنصة</h2>
+            <div class="level-info">
+                <div class="level-badge">🥉</div>
+                <div class="level-text">
+                    <h3>مبتدئ</h3>
+                    <p>كمل محاضرات وامتحانات عشان ترفع مستواك!</p>
+                </div>
+            </div>
+            <div class="xp-bar">
+                <div class="xp-fill" style="width: 0%;" id="xpFill"></div>
+            </div>
+            <p class="xp-text">0 / 100 XP للمستوى الجاي</p>
+        </div>
+
+        <!-- Info -->
+        <div class="info-card">
+            <h2>👤 معلوماتي</h2>
+            <div class="info-row">
+                <span class="label">الاسم الكامل</span>
+                <span class="value">{{ user.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">الإيميل</span>
+                <span class="value">{{ user.email }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">الدور</span>
+                <span class="value">{% if user.role == 'admin' %}أدمين{% elif user.role == 'teacher' %}مدرس{% else %}طالب{% endif %}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">حالة الحساب</span>
+                <span class="value" style="color: {% if user.active %}#2e7d32{% else %}#c62828{% endif %};">
+                    {% if user.active %}✅ نشط{% else %}❌ موقوف{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Activity -->
+        <div class="activity-card">
+            <h2>🔔 آخر نشاطاتي</h2>
+            <div class="activity-item">
+                <div class="activity-icon">👤</div>
+                <div class="activity-text">
+                    <p>سجلت في المنصة</p>
+                    <span>مرحباً بك في معادلة! 🎉</span>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">📚</div>
+                <div class="activity-text">
+                    <p>لسه ما شوفتش محاضرات</p>
+                    <span>ابدأ بأول محاضرة دلوقتي!</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.getElementById('xpFill').style.width = '5%';
+        }, 500);
+    </script>
+
+</body>
+</html>

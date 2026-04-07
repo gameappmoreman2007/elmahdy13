@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة التحكم - معادلة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #f0f4ff; display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #0d1257, #1a237e, #283593);
+            color: white;
+            position: fixed;
+            top: 0; right: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+        .sidebar .logo {
+            text-align: center;
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar .logo h2 { font-size: 24px; color: #ffd700; }
+        .sidebar .logo p { font-size: 12px; opacity: 0.6; margin-top: 5px; }
+        .sidebar .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+        }
+        .sidebar .admin-avatar {
+            width: 40px; height: 40px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #1a237e; font-weight: bold;
+        }
+        .sidebar .admin-name { font-size: 14px; font-weight: bold; }
+        .sidebar .admin-role { font-size: 11px; opacity: 0.6; }
+
+        .sidebar .menu-title {
+            font-size: 11px;
+            opacity: 0.5;
+            padding: 15px 20px 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            transition: 0.3s;
+            font-size: 14px;
+            border-right: 3px solid transparent;
+        }
+        .sidebar a:hover { background: rgba(255,255,255,0.1); border-right-color: #ffd700; }
+        .sidebar a.active { background: rgba(255,215,0,0.15); border-right-color: #ffd700; color: #ffd700; }
+        .sidebar .badge {
+            margin-right: auto;
+            background: #e53935;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .sidebar .logout-section {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 0;
+        }
+        .sidebar .logout-section a { color: #ef9a9a; }
+
+        /* Main */
+        .main { margin-right: 260px; width: calc(100% - 260px); padding: 25px; }
+
+        /* Top bar */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .topbar h1 { color: #1a237e; font-size: 22px; }
+        .topbar .right { display: flex; align-items: center; gap: 15px; }
+        .topbar .date { color: #666; font-size: 13px; }
+        .topbar .notif {
+            width: 35px; height: 35px;
+            background: #f0f4ff;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 18px;
+            position: relative;
+        }
+        .notif-dot {
+            position: absolute;
+            top: 0; left: 0;
+            width: 10px; height: 10px;
+            background: #e53935;
+            border-radius: 50%;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-icon {
+            width: 55px; height: 55px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; flex-shrink: 0;
+        }
+        .stat-card .info h3 { font-size: 26px; color: #1a237e; font-weight: bold; }
+        .stat-card .info p { color: #888; font-size: 13px; margin-top: 2px; }
+        .stat-card .trend { font-size: 12px; margin-top: 3px; }
+        .trend-up { color: #2e7d32; }
+        .trend-down { color: #c62828; }
+
+        /* Grid 2 col */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
+
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f4ff;
+        }
+        .card-header h3 { color: #1a237e; font-size: 16px; }
+        .card-header a { color: #3949ab; font-size: 13px; text-decoration: none; }
+
+        /* Progress */
+        .progress-item { margin-bottom: 15px; }
+        .progress-label { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; color: #444; }
+        .progress-bar { background: #e8eaf6; border-radius: 10px; height: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 1.5s ease; width: 0%; }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f0f4ff; color: #1a237e; padding: 12px 15px; text-align: right; font-size: 13px; white-space: nowrap; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f5f5f5; font-size: 13px; color: #444; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafafa; }
+
+        /* Badges */
+        .badge { padding: 3px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; white-space: nowrap; }
+        .badge-student { background: #e3f2fd; color: #1565c0; }
+        .badge-admin { background: #fff3e0; color: #e65100; }
+        .badge-teacher { background: #e8f5e9; color: #2e7d32; }
+        .badge-active { background: #e8f5e9; color: #2e7d32; }
+        .badge-inactive { background: #fce4ec; color: #c62828; }
+
+        /* Switch */
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 22px; transition: 0.3s; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; right: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider { background: #2e7d32; }
+        input:checked + .slider:before { transform: translateX(-22px); }
+
+        /* Activity */
+        .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-dot { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .activity-text p { font-size: 13px; color: #333; }
+        .activity-text span { font-size: 11px; color: #999; }
+
+        /* Quick Actions */
+        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .action-btn {
+            display: flex; align-items: center; gap: 10px;
+            background: #f0f4ff;
+            border-radius: 10px;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #1a237e;
+            font-size: 13px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .action-btn:hover { background: #1a237e; color: white; transform: scale(1.02); }
+        .action-btn .action-icon { font-size: 22px; }
+
+        /* Platform toggle */
+        .platform-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        .platform-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .platform-header h3 { color: #1a237e; }
+        .platform-status { display: flex; align-items: center; gap: 10px; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; background: #2e7d32; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .platform-toggle-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .btn-active { background: #e53935; color: white; }
+        .btn-active:hover { background: #c62828; }
+        .btn-inactive { background: #2e7d32; color: white; }
+        .btn-inactive:hover { background: #1b5e20; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <h2>🎓 معادلة</h2>
+            <p>لوحة تحكم الأدمين</p>
+        </div>
+        <div class="admin-info">
+            <div class="admin-avatar">A</div>
+            <div>
+                <div class="admin-name">Admin</div>
+                <div class="admin-role">مدير المنصة</div>
+            </div>
+        </div>
+
+        <div class="menu-title">القائمة الرئيسية</div>
+        <a href="/admin" class="active">🏠 الرئيسية</a>
+        <a href="#">👨‍🎓 الطلاب <span class="badge" id="studentsBadge">0</span></a>
+        <a href="/courses">📚 الكورسات</a>
+        <a href="/admin/add_lecture">🎥 رفع محاضرة</a>
+        <a href="/admin/add_course">➕ إضافة كورس</a>
+
+        <div class="menu-title">الإدارة</div>
+        <a href="#">📝 الامتحانات</a>
+        <a href="#">📊 التقارير</a>
+        <a href="#">💬 الرسائل</a>
+        <a href="#">⚙️ الإعدادات</a>
+
+        <div class="logout-section">
+            <a href="/">🏠 الموقع الرئيسي</a>
+            <a href="/logout">🚪 تسجيل الخروج</a>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <h1>👋 أهلاً يا Admin!</h1>
+            <div class="right">
+                <div class="date" id="dateTime"></div>
+                <div class="notif">🔔<div class="notif-dot"></div></div>
+            </div>
+        </div>
+
+        <!-- Platform Status -->
+        <div class="platform-card">
+            <div class="platform-header">
+                <h3>⚡ حالة المنصة</h3>
+                <div class="platform-status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText" style="color:#2e7d32; font-weight:bold;">المنصة شغالة ✅</span>
+                    <button class="platform-toggle-btn btn-active" id="platformBtn" onclick="togglePlatform()">
+                        إيقاف المنصة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#e3f2fd;">👨‍🎓</div>
+                <div class="info">
+                    <h3 id="totalStudents">0</h3>
+                    <p>إجمالي الطلاب</p>
+                    <div class="trend trend-up">↑ جديد اليوم</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#e8f5e9;">✅</div>
+                <div class="info">
+                    <h3 id="activeStudents">0</h3>
+                    <p>طلاب نشطين</p>
+                    <div class="trend trend-up">↑ نشطين دلوقتي</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fff3e0;">📚</div>
+                <div class="info">
+                    <h3 id="totalCourses">0</h3>
+                    <p>كورس متاح</p>
+                    <div class="trend trend-up">↑ كورسات فعالة</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fce4ec;">🎥</div>
+                <div class="info">
+                    <h3 id="totalLectures">0</h3>
+                    <p>محاضرة مرفوعة</p>
+                    <div class="trend trend-up">↑ محاضرات متاحة</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 1 -->
+        <div class="grid-2">
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>⚡ إجراءات سريعة</h3>
+                </div>
+                <div class="actions-grid">
+                    <a href="/admin/add_course" class="action-btn"><span class="action-icon">📚</span> إضافة كورس</a>
+                    <a href="/admin/add_lecture" class="action-btn"><span class="action-icon">🎥</span> رفع محاضرة</a>
+                    <a href="#" class="action-btn"><span class="action-icon">📝</span> إضافة امتحان</a>
+                    <a href="#" class="action-btn"><span class="action-icon">👨‍🎓</span> إدارة الطلاب</a>
+                    <a href="#" class="action-btn"><span class="action-icon">📊</span> التقارير</a>
+                    <a href="#" class="action-btn"><span class="action-icon">💬</span> الرسائل</a>
+                </div>
+            </div>
+
+            <!-- Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>🔔 آخر النشاطات</h3>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background:#e3f2fd;">👤</div>
+                    <div class="activity-text"><p>طالب جديد سجل في المنصة</p><span>منذ 5 دقائق</span></div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background:#e8f5e9;">📝</div>
+                    <div class="activity-text"><p>تم حل امتحان رياضيات</p><span>منذ 15 دقيقة</span></div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background:#fff3e0;">🎥</div>
+                    <div class="activity-text"><p>تم مشاهدة محاضرة فيزياء</p><span>منذ 30 دقيقة</span></div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background:#fce4ec;">⭐</div>
+                    <div class="activity-text"><p>طالب أكمل كورس ميكانيكا</p><span>منذ ساعة</span></div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background:#e8f5e9;">🏆</div>
+                    <div class="activity-text"><p>طالب حقق أعلى درجة في الكويز</p><span>منذ ساعتين</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="grid-3">
+            <!-- Students Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>👨‍🎓 الطلاب المسجلين</h3>
+                    <a href="#">عرض الكل</a>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>الاسم</th>
+                                <th>الإيميل</th>
+                                <th>الدور</th>
+                                <th>الحالة</th>
+                                <th>تفعيل</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTable">
+                            <tr><td colspan="6" style="text-align:center; color:#999; padding:20px;">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Subjects -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>📊 أكثر المواد</h3>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label"><span>رياضيات</span><span>85%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="background:#1a237e;" data-width="85%"></div></div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label"><span>فيزياء</span><span>72%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="background:#1565c0;" data-width="72%"></div></div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label"><span>كيمياء</span><span>60%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="background:#1976d2;" data-width="60%"></div></div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label"><span>ميكانيكا</span><span>45%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="background:#42a5f5;" data-width="45%"></div></div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label"><span>برمجة</span><span>38%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="background:#90caf9;" data-width="38%"></div></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Date & Time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('dateTime').innerHTML =
+                `📅 ${now.toLocaleDateString('ar-EG')} | ⏰ ${now.toLocaleTimeString('ar-EG')}`;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Progress bars
+        setTimeout(() => {
+            document.querySelectorAll('.progress-fill').forEach(bar => {
+                bar.style.width = bar.getAttribute('data-width');
+            });
+        }, 500);
+
+        // Platform toggle
+        let platformActive = true;
+        function togglePlatform() {
+            platformActive = !platformActive;
+            const btn = document.getElementById('platformBtn');
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            if (platformActive) {
+                btn.className = 'platform-toggle-btn btn-active';
+                btn.innerText = 'إيقاف المنصة';
+                dot.style.background = '#2e7d32';
+                text.style.color = '#2e7d32';
+                text.innerText = 'المنصة شغالة ✅';
+            } else {
+                btn.className = 'platform-toggle-btn btn-inactive';
+                btn.innerText = 'تشغيل المنصة';
+                dot.style.background = '#e53935';
+                text.style.color = '#e53935';
+                text.innerText = 'المنصة متوقفة ❌';
+            }
+        }
+
+        // Load students & stats
+        fetch('/api/students')
+            .then(r => r.json())
+            .then(data => {
+                const total = data.length;
+                const active = data.filter(s => s.active).length;
+                document.getElementById('totalStudents').innerText = total;
+                document.getElementById('activeStudents').innerText = active;
+                document.getElementById('studentsBadge').innerText = total;
+
+                const tbody = document.getElementById('studentsTable');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#999;">لا يوجد طلاب مسجلين</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.map((s, i) => `
+                    <tr>
+                        <td>${i+1}</td>
+                        <td><b>${s.name}</b></td>
+                        <td style="color:#666;">${s.email}</td>
+                        <td><span class="badge badge-${s.role}">${s.role === 'admin' ? 'أدمين' : s.role === 'teacher' ? 'مدرس' : 'طالب'}</span></td>
+                        <td><span class="badge ${s.active ? 'badge-active' : 'badge-inactive'}">${s.active ? 'نشط' : 'موقوف'}</span></td>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" ${s.active ? 'checked' : ''} onchange="toggleUser(${s.id}, this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+
+        // Load courses & lectures count
+        fetch('/api/stats')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('totalCourses').innerText = data.courses;
+                document.getElementById('totalLectures').innerText = data.lectures;
+            });
+
+        // Toggle user
+        function toggleUser(id, active) {
+            fetch(`/api/toggle_user/${id}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({active})
+            });
+        }
+    </script>
+
+</body>
+</html>

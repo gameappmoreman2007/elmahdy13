@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>رفع محاضرة - معادلة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #f0f4ff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); width: 500px; }
+        h2 { color: #1a237e; text-align: center; margin-bottom: 25px; }
+        input, select, textarea { width: 100%; padding: 13px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; outline: none; transition: 0.3s; }
+        input:focus, select:focus, textarea:focus { border-color: #1a237e; }
+        textarea { height: 100px; resize: none; }
+        .upload-area { border: 3px dashed #1a237e; border-radius: 15px; padding: 40px; text-align: center; margin: 15px 0; cursor: pointer; background: #f0f4ff; transition: 0.3s; }
+        .upload-area:hover { background: #e3f2fd; }
+        .upload-area p { color: #1a237e; font-size: 16px; margin-top: 10px; }
+        .progress { display: none; margin: 15px 0; }
+        .progress-bar { background: #e0e0e0; border-radius: 10px; height: 12px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #1a237e, #3949ab); border-radius: 10px; width: 0%; transition: width 0.3s; }
+        .progress-text { text-align: center; color: #1a237e; font-size: 14px; margin-top: 5px; }
+        button { width: 100%; padding: 14px; background: linear-gradient(135deg, #1a237e, #3949ab); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+        button:hover { transform: scale(1.02); }
+        a { display: block; text-align: center; margin-top: 15px; color: #1a237e; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🎥 رفع محاضرة جديدة</h2>
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            <input type="text" name="title" placeholder="عنوان المحاضرة" required>
+            <textarea name="description" placeholder="وصف المحاضرة"></textarea>
+            <select name="course_id" required>
+                <option value="">اختار الكورس</option>
+                {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.title }}</option>
+                {% endfor %}
+            </select>
+            <div class="upload-area" onclick="document.getElementById('videoInput').click()">
+                <span style="font-size:40px;">🎬</span>
+                <p id="uploadText">اضغط هنا لاختيار الفيديو</p>
+                <p style="color:#999; font-size:13px;">MP4, AVI, MOV مقبول</p>
+            </div>
+            <input type="file" name="video" id="videoInput" accept="video/*" style="display:none;" required onchange="updateFileName(this)">
+            <div class="progress" id="progressDiv">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text" id="progressText">جاري الرفع...</p>
+            </div>
+            <button type="submit" id="submitBtn">🚀 رفع المحاضرة</button>
+        </form>
+        <a href="/admin">← رجوع للوحة التحكم</a>
+    </div>
+
+    <script>
+        function updateFileName(input) {
+            if (input.files[0]) {
+                document.getElementById('uploadText').innerText = '✅ ' + input.files[0].name;
+            }
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', function() {
+            document.getElementById('progressDiv').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerText = 'جاري الرفع...';
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 2;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressText').innerText = 'جاري الرفع... ' + progress + '%';
+                if (progress >= 90) clearInterval(interval);
+            }, 200);
+        });
+    </script>
+</body>
+</html>

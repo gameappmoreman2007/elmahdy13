@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>الاشتراك - معادلة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #f0f4ff; }
+        .navbar { background: linear-gradient(135deg, #1a237e, #3949ab); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar .logo { color: white; font-size: 24px; font-weight: bold; text-decoration: none; }
+        .navbar .logo span { color: #ffd700; }
+        .nav-links a { color: white; text-decoration: none; margin-right: 15px; padding: 8px 20px; border-radius: 25px; transition: 0.3s; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .content { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        .status-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 25px; text-align: center; }
+        .status-icon { font-size: 60px; margin-bottom: 15px; }
+        .status-card h2 { color: #1a237e; margin-bottom: 10px; }
+        .status-card p { color: #666; }
+        .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .plan-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; border: 3px solid transparent; transition: 0.3s; cursor: pointer; }
+        .plan-card:hover { border-color: #1a237e; transform: translateY(-5px); }
+        .plan-card.selected { border-color: #1a237e; background: #f0f4ff; }
+        .plan-card.featured { border-color: #ffd700; }
+        .plan-icon { font-size: 40px; margin-bottom: 10px; }
+        .plan-card h3 { color: #1a237e; font-size: 20px; margin-bottom: 10px; }
+        .plan-price { font-size: 36px; font-weight: bold; color: #1a237e; margin: 10px 0; }
+        .plan-price span { font-size: 14px; color: #888; }
+        .plan-card ul { list-style: none; text-align: right; margin: 15px 0; }
+        .plan-card ul li { padding: 6px 0; color: #555; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+        .plan-card ul li::before { content: '✅ '; }
+        .instapay-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 25px; }
+        .instapay-card h3 { color: #1a237e; margin-bottom: 20px; font-size: 18px; }
+        .instapay-number { background: linear-gradient(135deg, #1a237e, #3949ab); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        .instapay-number p { font-size: 14px; opacity: 0.8; margin-bottom: 5px; }
+        .instapay-number h2 { font-size: 28px; font-weight: bold; color: #ffd700; letter-spacing: 2px; }
+        .copy-btn { background: #ffd700; color: #1a237e; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        .copy-btn:hover { transform: scale(1.05); }
+        .steps-list { margin-top: 15px; }
+        .step-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .step-num { width: 30px; height: 30px; background: #1a237e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+        .step-item p { color: #444; font-size: 14px; }
+        .submit-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #1a237e, #3949ab); color: white; border: none; border-radius: 15px; font-size: 18px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .submit-btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(26,35,126,0.4); }
+        .pending-card { background: #fff3e0; border-radius: 20px; padding: 25px; text-align: center; border: 2px solid #ff8f00; }
+        .active-card { background: #e8f5e9; border-radius: 20px; padding: 25px; text-align: center; border: 2px solid #2e7d32; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/" class="logo">🎓 <span>معادلة</span></a>
+        <div class="nav-links">
+            <a href="/courses">📚 الكورسات</a>
+            <a href="/profile">👤 ملفي</a>
+            <a href="/logout" style="background:#e53935;">خروج</a>
+        </div>
+    </div>
+
+    <div class="content">
+
+        {% if subscribed %}
+        <div class="active-card">
+            <div style="font-size:60px;">🎉</div>
+            <h2 style="color:#2e7d32; margin:15px 0;">اشتراكك فعال!</h2>
+            <p style="color:#555;">تقدر تشوف كل المحاضرات والكورسات بدون قيود</p>
+            {% if user.subscription_end %}
+            <p style="color:#2e7d32; font-weight:bold; margin-top:10px;">
+                ينتهي في: {{ user.subscription_end.strftime('%Y-%m-%d') }}
+            </p>
+            {% endif %}
+            <a href="/courses" style="display:inline-block; margin-top:20px; background:#2e7d32; color:white; padding:12px 30px; border-radius:25px; text-decoration:none; font-weight:bold;">📚 ابدأ التعلم</a>
+        </div>
+
+        {% elif last_request and last_request.status == 'pending' %}
+        <div class="pending-card">
+            <div style="font-size:60px;">⏳</div>
+            <h2 style="color:#e65100; margin:15px 0;">طلبك تحت المراجعة</h2>
+            <p style="color:#555;">بعتنا طلب الاشتراك وبنراجعه دلوقتي، هيتفعل في أقرب وقت!</p>
+            <p style="color:#e65100; margin-top:10px; font-size:13px;">لو عندك استفسار تواصل معنا على واتساب</p>
+        </div>
+
+        {% else %}
+        <div class="status-card">
+            <div class="status-icon">⭐</div>
+            <h2>اشترك في معادلة</h2>
+            <p>اشتراك واحد يفتحلك كل المحاضرات والكورسات والامتحانات</p>
+        </div>
+
+        <div class="plans-grid">
+            <div class="plan-card featured" id="plan-monthly" onclick="selectPlan('monthly')">
+                <div class="plan-icon">⭐</div>
+                <h3>شهري</h3>
+                <div class="plan-price">99 <span>جنيه/شهر</span></div>
+                <ul>
+                    <li>كل المحاضرات</li>
+                    <li>كل الكورسات</li>
+                    <li>امتحانات تدريبية</li>
+                    <li>دعم فوري</li>
+                </ul>
+            </div>
+            <div class="plan-card" id="plan-yearly" onclick="selectPlan('yearly')">
+                <div class="plan-icon">💎</div>
+                <h3>سنوي</h3>
+                <div class="plan-price">799 <span>جنيه/سنة</span></div>
+                <ul>
+                    <li>كل مميزات الشهري</li>
+                    <li>توفير 400 جنيه</li>
+                    <li>أولوية في الدعم</li>
+                    <li>محتوى حصري</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="instapay-card">
+            <h3>💳 طريقة الدفع - InstaPay</h3>
+            <div class="instapay-number">
+                <p>حول المبلغ على رقم InstaPay</p>
+                <h2>01551831312</h2>
+                <button class="copy-btn" onclick="copyNumber()">📋 نسخ الرقم</button>
+            </div>
+            <div class="steps-list">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <p>اختار الباقة المناسبة ليك</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <p>حول المبلغ على رقم InstaPay: <b>01551831312</b></p>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <p>اضغط "أرسل طلب الاشتراك" وهنفعلك في أقرب وقت</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">4</div>
+                    <p>هتوصلك رسالة تأكيد لما يتفعل اشتراكك ✅</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="/subscribe/request">
+            <input type="hidden" name="plan" id="selectedPlan" value="monthly">
+            <button type="submit" class="submit-btn">🚀 أرسل طلب الاشتراك</button>
+        </form>
+        {% endif %}
+
+    </div>
+
+    <script>
+        function selectPlan(plan) {
+            document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('plan-' + plan).classList.add('selected');
+            document.getElementById('selectedPlan').value = plan;
+        }
+        function copyNumber() {
+            navigator.clipboard.writeText('01551831312');
+            alert('تم نسخ الرقم! ✅');
+        }
+        selectPlan('monthly');
+    </script>
+</body>
+</html>

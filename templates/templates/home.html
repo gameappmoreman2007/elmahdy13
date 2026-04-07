@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>معادلة - كلية الهندسة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: #f0f4ff; overflow-x: hidden; }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #1a237e, #3949ab);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .navbar.scrolled { padding: 10px 40px; }
+        .navbar .logo { color: white; font-size: 26px; font-weight: bold; text-decoration: none; }
+        .navbar .logo span { color: #ffd700; }
+        .nav-links { display: flex; align-items: center; gap: 5px; }
+        .nav-links a { color: white; text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 25px; transition: 0.3s; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .nav-links .btn-login { background: #ffd700; color: #1a237e; font-weight: bold; }
+        .nav-links .btn-login:hover { background: #ffcc00; }
+        .nav-links .btn-logout { background: #e53935; }
+        .nav-links .btn-profile { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); }
+        .nav-links .btn-subscribe { background: linear-gradient(135deg, #f57f17, #ff8f00); color: white; }
+
+        /* Announcement Bar */
+        .announcement {
+            background: linear-gradient(90deg, #f57f17, #ff8f00);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .announcement span { margin: 0 10px; }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #0d1257 0%, #1a237e 40%, #1565c0 100%);
+            color: white;
+            text-align: center;
+            padding: 120px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .particle { position: absolute; background: rgba(255,255,255,0.1); border-radius: 50%; animation: floatParticle linear infinite; }
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        }
+        .hero-content { position: relative; z-index: 2; }
+        .hero .icon-float { font-size: 90px; display: block; animation: float 3s ease-in-out infinite; margin-bottom: 20px; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .hero h1 { font-size: 58px; margin-bottom: 20px; animation: fadeInUp 1s ease forwards; line-height: 1.2; }
+        .hero h1 span { color: #ffd700; }
+        .hero p { font-size: 20px; margin-bottom: 40px; opacity: 0; animation: fadeInUp 1s ease 0.3s forwards; color: rgba(255,255,255,0.9); max-width: 600px; margin-left: auto; margin-right: auto; }
+        .hero-btns { opacity: 0; animation: fadeInUp 1s ease 0.6s forwards; }
+        .hero-btns a { display: inline-block; padding: 16px 40px; border-radius: 30px; text-decoration: none; font-size: 17px; font-weight: bold; margin: 8px; transition: 0.3s; }
+        .btn-primary { background: #ffd700; color: #1a237e; }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255,215,0,0.5); }
+        .btn-secondary { background: transparent; color: white; border: 2px solid white; }
+        .btn-secondary:hover { background: white; color: #1a237e; }
+        .btn-subscribe-hero { background: linear-gradient(135deg, #f57f17, #ff8f00); color: white; }
+        .btn-subscribe-hero:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(245,127,23,0.5); }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 60px 20px;
+            background: white;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .stat-card {
+            text-align: center;
+            padding: 25px 40px;
+            border-radius: 20px;
+            background: #f0f4ff;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+            transition: 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-card h2 { font-size: 44px; color: #1a237e; font-weight: bold; }
+        .stat-card p { color: #666; font-size: 15px; margin-top: 5px; }
+
+        /* Features */
+        .features { padding: 80px 40px; text-align: center; background: #f8f9ff; }
+        .section-title { font-size: 38px; color: #1a237e; margin-bottom: 15px; }
+        .section-subtitle { color: #666; font-size: 16px; margin-bottom: 50px; }
+        .features-grid { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; }
+        .feature-card {
+            background: white;
+            padding: 35px 25px;
+            border-radius: 20px;
+            width: 240px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s;
+        }
+        .feature-card.visible { opacity: 1; transform: translateY(0); }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.12); }
+        .feature-card .icon { font-size: 55px; margin-bottom: 15px; }
+        .feature-card h3 { color: #1a237e; font-size: 18px; margin-bottom: 10px; }
+        .feature-card p { color: #888; font-size: 13px; line-height: 1.7; }
+
+        /* How it works */
+        .how-it-works { padding: 80px 40px; text-align: center; background: white; }
+        .steps { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 50px; }
+        .step {
+            text-align: center;
+            width: 200px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.6s;
+        }
+        .step.visible { opacity: 1; transform: translateY(0); }
+        .step-num {
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, #1a237e, #3949ab);
+            color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: bold;
+            margin: 0 auto 15px;
+        }
+        .step h3 { color: #1a237e; margin-bottom: 8px; }
+        .step p { color: #888; font-size: 13px; line-height: 1.6; }
+        .step-arrow { font-size: 30px; color: #ffd700; align-self: center; padding-bottom: 30px; }
+
+        /* Pricing */
+        .pricing { padding: 80px 40px; text-align: center; background: #f8f9ff; }
+        .pricing-grid { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-top: 50px; }
+        .pricing-card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px 30px;
+            width: 280px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: 0.3s;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s;
+        }
+        .pricing-card.visible { opacity: 1; transform: translateY(0); }
+        .pricing-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+        .pricing-card.featured {
+            background: linear-gradient(135deg, #1a237e, #3949ab);
+            color: white;
+        }
+        .pricing-card.featured h3, .pricing-card.featured p, .pricing-card.featured li { color: white !important; }
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd700;
+            color: #1a237e;
+            padding: 4px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pricing-card h3 { color: #1a237e; font-size: 20px; margin-bottom: 10px; }
+        .pricing-card .price { font-size: 48px; font-weight: bold; color: #1a237e; margin: 15px 0; }
+        .pricing-card.featured .price { color: #ffd700; }
+        .pricing-card .price span { font-size: 16px; opacity: 0.7; }
+        .pricing-card ul { list-style: none; text-align: right; margin: 20px 0; }
+        .pricing-card ul li { padding: 8px 0; color: #555; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+        .pricing-card.featured ul li { border-bottom-color: rgba(255,255,255,0.2); }
+        .pricing-card ul li::before { content: '✅ '; }
+        .pricing-btn {
+            display: block;
+            padding: 12px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15px;
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+        .pricing-btn-outline { border: 2px solid #1a237e; color: #1a237e; }
+        .pricing-btn-outline:hover { background: #1a237e; color: white; }
+        .pricing-btn-filled { background: #ffd700; color: #1a237e; }
+        .pricing-btn-filled:hover { transform: scale(1.05); }
+
+        /* Testimonials */
+        .testimonials { padding: 80px 40px; text-align: center; background: white; }
+        .testimonials-grid { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-top: 50px; }
+        .testimonial-card {
+            background: #f8f9ff;
+            border-radius: 20px;
+            padding: 30px;
+            width: 280px;
+            text-align: right;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.6s;
+        }
+        .testimonial-card.visible { opacity: 1; transform: translateY(0); }
+        .testimonial-card .stars { color: #ffd700; font-size: 20px; margin-bottom: 15px; }
+        .testimonial-card p { color: #555; font-size: 14px; line-height: 1.7; margin-bottom: 15px; }
+        .testimonial-card .author { display: flex; align-items: center; gap: 10px; }
+        .author-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #1a237e, #3949ab); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .author-name { font-weight: bold; color: #1a237e; font-size: 14px; }
+        .author-title { color: #888; font-size: 12px; }
+
+        /* CTA */
+        .cta {
+            background: linear-gradient(135deg, #1a237e, #3949ab);
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .cta h2 { font-size: 40px; margin-bottom: 15px; }
+        .cta p { font-size: 18px; opacity: 0.9; margin-bottom: 40px; }
+        .cta a { display: inline-block; padding: 16px 50px; border-radius: 30px; font-size: 18px; font-weight: bold; text-decoration: none; transition: 0.3s; animation: pulse 2s infinite; }
+
+        /* Footer */
+        .footer { background: #0d1257; color: white; padding: 50px 40px 20px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; margin-bottom: 40px; }
+        .footer-col h4 { color: #ffd700; margin-bottom: 15px; font-size: 16px; }
+        .footer-col p, .footer-col a { color: rgba(255,255,255,0.7); font-size: 13px; line-height: 2; text-decoration: none; display: block; }
+        .footer-col a:hover { color: #ffd700; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; text-align: center; color: rgba(255,255,255,0.5); font-size: 13px; }
+        .social-links { display: flex; gap: 15px; margin-top: 15px; }
+        .social-link { width: 35px; height: 35px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 16px; transition: 0.3s; }
+        .social-link:hover { background: #ffd700; }
+    </style>
+</head>
+<body>
+
+    <!-- Announcement -->
+    {% if not session.get('user_id') %}
+    <div class="announcement">
+        🎉 <span>سجل دلوقتي واستمتع بأول شهر مجاناً!</span> 🎉
+    </div>
+    {% endif %}
+
+    <!-- Navbar -->
+    <div class="navbar" id="navbar">
+        <a href="/" class="logo">🎓 <span>معادلة</span></a>
+        <div class="nav-links">
+            <a href="/courses">📚 الكورسات</a>
+            {% if session.get('user_id') %}
+                <a href="/subscribe" class="btn-subscribe">⭐ اشتراك</a>
+                <a href="/profile" class="btn-profile">👤 {{ session.get('name') }}</a>
+                {% if session.get('role') == 'admin' %}
+                    <a href="/admin">⚙️ لوحة التحكم</a>
+                {% endif %}
+                <a href="/logout" class="btn-logout">خروج</a>
+            {% else %}
+                <a href="/subscribe" class="btn-subscribe">⭐ الأسعار</a>
+                <a href="/register">إنشاء حساب</a>
+                <a href="/login" class="btn-login">تسجيل الدخول</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="particles"></div>
+        <div class="hero-content">
+            <span class="icon-float">🎓</span>
+            {% if session.get('user_id') %}
+                <h1>أهلاً <span>{{ session.get('name') }}</span> 👋</h1>
+                <p>يلا نكمل رحلة التعلم ونحقق أهدافنا سوا! 💪</p>
+                <div class="hero-btns">
+                    <a href="/courses" class="btn-primary">📚 ابدأ التعلم</a>
+                    <a href="/profile" class="btn-secondary">👤 ملفي الشخصي</a>
+                    <a href="/subscribe" class="btn-subscribe-hero">⭐ اشتراكي</a>
+                </div>
+            {% else %}
+                <h1>منصة <span>معادلة</span> 🎓</h1>
+                <p>المنصة التعليمية الأولى لطلاب كلية الهندسة - محاضرات، امتحانات، وكورسات متكاملة</p>
+                <div class="hero-btns">
+                    <a href="/register" class="btn-primary">🚀 ابدأ دلوقتي مجاناً</a>
+                    <a href="/courses" class="btn-secondary">📚 تصفح الكورسات</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-card"><h2 class="counter" data-target="500">0</h2><p>👨‍🎓 طالب مسجل</p></div>
+        <div class="stat-card"><h2 class="counter" data-target="50">0</h2><p>📚 كورس متاح</p></div>
+        <div class="stat-card"><h2 class="counter" data-target="200">0</h2><p>🎥 محاضرة مسجلة</p></div>
+        <div class="stat-card"><h2 class="counter" data-target="98">0</h2><p>⭐ نسبة الرضا %</p></div>
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+        <h2 class="section-title">إيه اللي هتلاقيه في معادلة؟ 🚀</h2>
+        <p class="section-subtitle">كل اللي محتاجه في مكان واحد</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">🎥</div>
+                <h3>محاضرات مسجلة</h3>
+                <p>شوف المحاضرات في أي وقت وأي مكان على راحتك بجودة عالية</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📝</div>
+                <h3>امتحانات تدريبية</h3>
+                <p>اتدرب على الامتحانات وعرف مستواك فوراً مع نتائج فورية</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📚</div>
+                <h3>كورسات متكاملة</h3>
+                <p>كورسات شاملة لكل مواد كلية الهندسة من أول لآخر</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🏆</div>
+                <h3>تتبع تقدمك</h3>
+                <p>شوف نتايجك وتقدمك في كل مادة وارفع مستواك</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">💬</div>
+                <h3>دعم فوري</h3>
+                <p>فريق متخصص موجود دايماً لمساعدتك في أي وقت</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📱</div>
+                <h3>متوافق مع الموبايل</h3>
+                <p>ذاكر من موبايلك أو لابتوبك في أي وقت ومكان</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="how-it-works">
+        <h2 class="section-title">إزاي تبدأ؟ 🎯</h2>
+        <p class="section-subtitle">في 3 خطوات بسيطة</p>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>سجل حسابك</h3>
+                <p>إنشاء حساب مجاني في ثواني</p>
+            </div>
+            <div class="step-arrow">←</div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>اشترك في المنصة</h3>
+                <p>اختار الباقة المناسبة وفعّل اشتراكك</p>
+            </div>
+            <div class="step-arrow">←</div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>ابدأ التعلم</h3>
+                <p>استمتع بكل المحتوى وارفع مستواك</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="pricing">
+        <h2 class="section-title">الأسعار والباقات 💎</h2>
+        <p class="section-subtitle">اختار الباقة اللي تناسبك</p>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>🆓 مجاني</h3>
+                <div class="price">0<span> جنيه</span></div>
+                <ul>
+                    <li>بعض المحاضرات المجانية</li>
+                    <li>تصفح الكورسات</li>
+                    <li>إنشاء حساب</li>
+                </ul>
+                <a href="/register" class="pricing-btn pricing-btn-outline">ابدأ مجاناً</a>
+            </div>
+            <div class="pricing-card featured">
+                <div class="popular-badge">🔥 الأكثر طلباً</div>
+                <h3>⭐ شهري</h3>
+                <div class="price">99<span> جنيه/شهر</span></div>
+                <ul>
+                    <li>كل المحاضرات</li>
+                    <li>كل الكورسات</li>
+                    <li>امتحانات تدريبية</li>
+                    <li>دعم فوري</li>
+                </ul>
+                <a href="/subscribe" class="pricing-btn pricing-btn-filled">اشترك دلوقتي</a>
+            </div>
+            <div class="pricing-card">
+                <h3>💎 سنوي</h3>
+                <div class="price">799<span> جنيه/سنة</span></div>
+                <ul>
+                    <li>كل مميزات الشهري</li>
+                    <li>توفير 400 جنيه</li>
+                    <li>أولوية في الدعم</li>
+                    <li>محتوى حصري</li>
+                </ul>
+                <a href="/subscribe" class="pricing-btn pricing-btn-outline">اشترك سنوياً</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials -->
+    <div class="testimonials">
+        <h2 class="section-title">إيه اللي بيقوله الطلاب؟ 💬</h2>
+        <p class="section-subtitle">آراء طلابنا الحقيقيين</p>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>منصة معادلة غيرت طريقة مذاكرتي خالص، المحاضرات واضحة جداً والشرح بسيط وسهل الفهم!</p>
+                <div class="author">
+                    <div class="author-avatar">أ</div>
+                    <div><div class="author-name">أحمد محمد</div><div class="author-title">طالب هندسة مدنية</div></div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>الامتحانات التدريبية ساعدتني أعرف نقاط ضعفي وأصلحها قبل الامتحان الحقيقي بفترة كافية!</p>
+                <div class="author">
+                    <div class="author-avatar">س</div>
+                    <div><div class="author-name">سارة علي</div><div class="author-title">طالبة هندسة كهربا</div></div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>أفضل منصة تعليمية جربتها! السعر مناسب جداً مقارنة بالمحتوى الضخم اللي موجود فيها!</p>
+                <div class="author">
+                    <div class="author-avatar">م</div>
+                    <div><div class="author-name">محمود حسن</div><div class="author-title">طالب هندسة ميكانيكا</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+        <h2>مستنى إيه؟ 🚀</h2>
+        <p>انضم لأكثر من 500 طالب بيذاكروا على معادلة دلوقتي!</p>
+        <a href="/register" class="btn-primary">ابدأ رحلتك دلوقتي مجاناً 🎓</a>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>🎓 معادلة</h4>
+                <p>المنصة التعليمية الأولى لطلاب كلية الهندسة في مصر</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">📘</a>
+                    <a href="#" class="social-link">📸</a>
+                    <a href="#" class="social-link">🐦</a>
+                    <a href="#" class="social-link">▶️</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>روابط سريعة</h4>
+                <a href="/">الرئيسية</a>
+                <a href="/courses">الكورسات</a>
+                <a href="/subscribe">الأسعار</a>
+                <a href="/register">إنشاء حساب</a>
+            </div>
+            <div class="footer-col">
+                <h4>الكورسات</h4>
+                <a href="#">رياضيات</a>
+                <a href="#">فيزياء</a>
+                <a href="#">كيمياء</a>
+                <a href="#">ميكانيكا</a>
+            </div>
+            <div class="footer-col">
+                <h4>تواصل معنا</h4>
+                <a href="#">📧 info@moadalah.com</a>
+                <a href="#">📱 01000000000</a>
+                <a href="#">📍 القاهرة، مصر</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>🎓 منصة معادلة - كلية الهندسة © 2026 | جميع الحقوق محفوظة</p>
+        </div>
+    </div>
+
+    <script>
+        // Particles
+        for (let i = 0; i < 25; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            p.style.left = Math.random() * 100 + '%';
+            const size = Math.random() * 12 + 4;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.animationDuration = Math.random() * 12 + 8 + 's';
+            p.style.animationDelay = Math.random() * 8 + 's';
+            document.querySelector('.particles').appendChild(p);
+        }
+
+        // Navbar scroll
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Counter animation
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    let count = 0;
+                    const timer = setInterval(() => {
+                        count += Math.ceil(target / 60);
+                        if (count >= target) { el.innerText = target + '+'; clearInterval(timer); }
+                        else { el.innerText = count + '+'; }
+                    }, 25);
+                    statObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.counter').forEach(el => statObserver.observe(el));
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), i * 150);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.feature-card, .step, .pricing-card, .testimonial-card').forEach(el => observer.observe(el));
+    </script>
+
+</body>
+</html>
